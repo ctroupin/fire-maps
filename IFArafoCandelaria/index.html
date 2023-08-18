@@ -22,17 +22,19 @@
 		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.js"></script>
 		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.heat/0.2.0/leaflet-heat.js"></script>
 		<script type="text/javascript" src="basemaps.js"></script>
+		<script type="text/javascript" src="data/municipios.geojson"></script>
+		<script type="text/javascript" src="data/LaPalmaFire/EMS.geojson"></script>
 
 
 		<script>
 
 			var map = L.map('map', {
 			  fullscreenControl: true,
-			  center: [27.95, -15.6],
-			  zoom: 11
+			  center: [28.4113, -16.4091],
+			  zoom: 13
 			});
 
-			var datafile1 = "./data/fire_all_M6.json"
+			var datafile1 = "./data/fires.json"
 
 			var Esri_WorldImagery = L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
 				attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, ' +
@@ -45,7 +47,29 @@
 				"Esri_WorldImagery": Esri_WorldImagery
 			};
 
-			//map.addLayer(Esri_WorldImagery);
+
+			var emsStyle = {"color": "red", "weight": 2, "opacity": 1};
+			var munStyle = {"color": "green", "weight": 2, "opacity": 1, fillOpacity: 0.1 };
+  
+
+			L.geoJSON(municipios, {style: munStyle}).addTo(map);
+  			//L.geoJSON(EMS, {style: emsStyle}).addTo(map);
+
+			map.addLayer(Esri_WorldImagery);
+
+			// var contours = L.tileLayer.wms('http://servicios.idee.es/wms-inspire/mdt?SERVICE=WMS', {
+			// 	layers: 'EL.ContourLine',
+			// 	transparent: 'true',
+			// 	format: 'image/png',
+			// 	maxZoom: 21,
+			// 	opacity: 0.5}).addTo(map);
+
+			var protected = L.tileLayer.wms('http://idecan2.grafcan.es/ServicioWMS/EspNat', {
+				layers: 'EENN',
+				transparent: 'true',
+				format: 'image/png',
+				maxZoom: 21,
+				opacity: 0.5}).addTo(map);
 
 			var mygrad = {.5:'#FCFCFC', .7:'#FFE104',.8:'#FFAB1B', .9:'#FF040C', 1:'#000000'};
 
@@ -69,6 +93,7 @@
 
 					overlayers = {
 						"🔥 Heat map ": heatmap,
+						"Protected areas": protected
 					};
 
 					L.control.layers(baseMaps, overlayers).addTo(map);
