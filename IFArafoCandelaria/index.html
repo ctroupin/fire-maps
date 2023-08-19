@@ -21,9 +21,13 @@
 		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.fullscreen/2.4.0/Control.FullScreen.min.js"></script>
 		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.js"></script>
 		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.heat/0.2.0/leaflet-heat.js"></script>
+		<script src="https://unpkg.com/plotty@0.2.0/src/plotty.js"></script>
+		<script src="leaflet-geotiff.js"></script>
+		<!-- Load any renderer you need -->
+		<script src="geotiff.js"></script>
 		<script type="text/javascript" src="basemaps.js"></script>
 		<script type="text/javascript" src="data/municipios.geojson"></script>
-		<script type="text/javascript" src="data/LaPalmaFire/EMS.geojson"></script>
+		<script type="text/javascript" src="data/contourEMS01.geojson"></script> 
 
 
 		<script>
@@ -47,13 +51,14 @@
 				"Esri_WorldImagery": Esri_WorldImagery
 			};
 
+			//var aqualayer = L.leafletGeotiff("data/Aqua-2023-08-18T00_00_00Z.tiff", {}).addTo(map);
 
 			var emsStyle = {"color": "red", "weight": 2, "opacity": 1};
-			var munStyle = {"color": "green", "weight": 2, "opacity": 1, fillOpacity: 0.1 };
+			var munStyle = {"color": "black", "weight": 2, "opacity": 1, fillOpacity: 0.1 };
   
 
 			L.geoJSON(municipios, {style: munStyle}).addTo(map);
-  			//L.geoJSON(EMS, {style: emsStyle}).addTo(map);
+  			EMScontour = L.geoJSON(contour01, {style: emsStyle}).addTo(map);
 
 			map.addLayer(Esri_WorldImagery);
 
@@ -93,10 +98,11 @@
 
 					overlayers = {
 						"🔥 Fire and thermal anomalies": heatmap,
-						"Protected areas": protected
+						"Protected areas": protected,
+						"Copernicus EMS delineation": EMScontour
 					};
 
-					L.control.layers(baseMaps, overlayers).addTo(map);
+					L.control.layers(baseMaps, overlayers, {collapsed:false}).addTo(map);
 				});
 
 			</script>
