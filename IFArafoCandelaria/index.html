@@ -8,6 +8,7 @@
 			#IFArafoCandelaria (2023-08-16)
 		</title>
 		<script src ="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-ajax/2.1.0/leaflet.ajax.min.js"></script>	
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.fullscreen/2.4.0/Control.FullScreen.css">
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
@@ -28,7 +29,7 @@
 		<script type="text/javascript" src="basemaps.js"></script>
 		<script type="text/javascript" src="data/municipios.geojson"></script>
 		<script type="text/javascript" src="data/contourEMS01.geojson"></script> 
-
+		<script type="text/javascript" src="data/EMSR685_AOI01_DEL_PRODUCT_observedEventP_v1.json"></script>
 
 		<script>
 
@@ -55,7 +56,12 @@
 
 			var emsStyle = {"color": "red", "weight": 2, "opacity": 1};
 			var munStyle = {"color": "black", "weight": 2, "opacity": 1, fillOpacity: 0.1 };
-  
+			var myStyle = {
+				"color": "#ff7800",
+				"weight": 5,
+				"opacity": 0.65
+			};
+
 
 			L.geoJSON(municipios, {style: munStyle}).addTo(map);
   			EMScontour = L.geoJSON(contour01, {style: emsStyle}).addTo(map);
@@ -85,6 +91,30 @@
 				blur: 7,
 			};
 
+			var geojsonMarkerOptions = {
+				radius: 8,
+				fillColor: "red",
+				color: "#000",
+				weight: 1,
+				opacity: 1,
+				fillOpacity: 0.8
+			};
+
+			L.geoJSON(fireobs, {
+				pointToLayer: function (feature, latlng) {
+					return L.circleMarker(latlng, geojsonMarkerOptions);
+				}
+			}).addTo(map);
+			/* L.geoJSON(fireobs, {
+				pointToLayer: function (feature, latlng) {
+					return L.circleMarker(latlng, geojsonMarkerOptions);
+				}
+			}).add To(map);
+			*/
+
+			var wmsLayer = L.tileLayer.wms('https://firms.modaps.eosdis.nasa.gov/mapserver/wms/time_since_detection_4/f45de1ada22f8889c41a6d34b07961ff', 
+				{layers: 'tsd_4_landsat_all'}).addTo(map);		
+			
 			$.getJSON(datafile1, function(json) {
 					latlon = [];
 					json.forEach(function (item, index) {
@@ -99,7 +129,8 @@
 					overlayers = {
 						"🔥 Fire and thermal anomalies": heatmap,
 						"Protected areas": protected,
-						"Copernicus EMS delineation": EMScontour
+						"Copernicus EMS delineation": EMScontour,
+						"ok": wmsLayer
 					};
 
 					L.control.layers(baseMaps, overlayers, {collapsed:false}).addTo(map);
