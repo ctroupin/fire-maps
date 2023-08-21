@@ -23,13 +23,9 @@
 		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.js"></script>
 		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.heat/0.2.0/leaflet-heat.js"></script>
 		<script src="https://unpkg.com/plotty@0.2.0/src/plotty.js"></script>
-		<script src="leaflet-geotiff.js"></script>
 		<!-- Load any renderer you need -->
-		<script src="geotiff.js"></script>
 		<script type="text/javascript" src="basemaps.js"></script>
-		<script type="text/javascript" src="data/municipios.geojson"></script>
 		<script type="text/javascript" src="data/contourEMS01.geojson"></script> 
-		<script type="text/javascript" src="data/EMSR685_AOI01_DEL_PRODUCT_observedEventP_v1.json"></script>
 
 		<script>
 
@@ -39,7 +35,9 @@
 			  zoom: 13
 			});
 
-			var datafile1 = "./data/fires.json"
+			var firefile = "./data/fires.json"
+			var municipiosfile = "data/municipios.geojson"
+			var observedfirefile = "./data/EMSR685_AOI01_DEL_PRODUCT_observedEventP_v1.json"
 
 			var Esri_WorldImagery = L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
 				attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, ' +
@@ -52,7 +50,22 @@
 				"Esri_WorldImagery": Esri_WorldImagery
 			};
 
-			//var aqualayer = L.leafletGeotiff("data/Aqua-2023-08-18T00_00_00Z.tiff", {}).addTo(map);
+		
+			var latLngBounds = L.latLngBounds([[28.8019000, -17.0730523], [27.8343000, -15.8745477]]);
+			var aqua20230818 = L.imageOverlay("data/Aqua-2023-08-17T00_00_00Z.jpg", latLngBounds, {
+				opacity: 0.8,
+				alt: "ok",
+				interactive: true
+			});
+
+			
+			var latLngBounds2 = L.latLngBounds([[28.6212953, -17.1153259], [27.9683272, -15.7969666]]);
+			var sentinel20230818 = L.imageOverlay("data/Sentinel2-2023-08-17T00_00_00Z.jpg", latLngBounds2, {
+				opacity: 0.9,
+				alt: "ok",
+				interactive: true
+			});
+			
 
 			var emsStyle = {"color": "red", "weight": 2, "opacity": 1};
 			var munStyle = {"color": "black", "weight": 2, "opacity": 1, fillOpacity: 0.1 };
@@ -63,17 +76,15 @@
 			};
 
 
-			L.geoJSON(municipios, {style: munStyle}).addTo(map);
-  			EMScontour = L.geoJSON(contour01, {style: emsStyle}).addTo(map);
+			var municipios = L.geoJSON(null, {style: munStyle});
+			$.getJSON(municipiosfile, function(data) {
+			 	municipios.addData(data);
+			});
+			municipios.addTo(map);
+
+			EMScontour = L.geoJSON(contour01, {style: emsStyle}).addTo(map);
 
 			map.addLayer(Esri_WorldImagery);
-
-			// var contours = L.tileLayer.wms('http://servicios.idee.es/wms-inspire/mdt?SERVICE=WMS', {
-			// 	layers: 'EL.ContourLine',
-			// 	transparent: 'true',
-			// 	format: 'image/png',
-			// 	maxZoom: 21,
-			// 	opacity: 0.5}).addTo(map);
 
 			var protected = L.tileLayer.wms('http://idecan2.grafcan.es/ServicioWMS/EspNat', {
 				layers: 'EENN',
@@ -100,22 +111,18 @@
 				fillOpacity: 0.8
 			};
 
-			L.geoJSON(fireobs, {
+			var fireobs = L.geoJSON(null, {
 				pointToLayer: function (feature, latlng) {
 					return L.circleMarker(latlng, geojsonMarkerOptions);
 				}
-			}).addTo(map);
-			/* L.geoJSON(fireobs, {
-				pointToLayer: function (feature, latlng) {
-					return L.circleMarker(latlng, geojsonMarkerOptions);
-				}
-			}).add To(map);
-			*/
+			});
+			$.getJSON(observedfirefile, function(data) {
+				fireobs.addData(data);
+			});
+			fireobs.addTo(map);
 
-			var wmsLayer = L.tileLayer.wms('https://firms.modaps.eosdis.nasa.gov/mapserver/wms/time_since_detection_4/f45de1ada22f8889c41a6d34b07961ff', 
-				{layers: 'tsd_4_landsat_all'}).addTo(map);		
-			
-			$.getJSON(datafile1, function(json) {
+							
+			$.getJSON(firefile, function(json) {
 					latlon = [];
 					json.forEach(function (item, index) {
 					  // console.log("Lon: " + item["latitude"] + ", Lat:" + item["longitude"]);
@@ -128,9 +135,11 @@
 
 					overlayers = {
 						"🔥 Fire and thermal anomalies": heatmap,
-						"Protected areas": protected,
+						"Natural protected areas": protected,
 						"Copernicus EMS delineation": EMScontour,
-						"ok": wmsLayer
+						"Municipalities": municipios,
+						"MODIS AQUA 18 August": aqua20230818,
+						"Sentinel-2 18 August": sentinel20230818,
 					};
 
 					L.control.layers(baseMaps, overlayers, {collapsed:false}).addTo(map);
