@@ -35,9 +35,9 @@
 			  zoom: 13
 			});
 
-			var firefile = "./data/fires.json"
+			var firefile = "./data/fires20230822.json"
 			var municipiosfile = "data/municipios.geojson"
-			var observedfirefile = "./data/EMSR685_AOI01_DEL_PRODUCT_observedEventP_v1.json"
+			var observedfirefile = "data/EMSR685_AOI01_DEL_PRODUCT_observedEventP_v1.json"
 
 			var Esri_WorldImagery = L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
 				attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, ' +
@@ -67,7 +67,7 @@
 			});
 			
 
-			var emsStyle = {"color": "red", "weight": 2, "opacity": 1};
+			var emsStyle = {"color": "#FF9400", "weight": 2, "opacity": 1};
 			var munStyle = {"color": "black", "weight": 2, "opacity": 1, fillOpacity: 0.1 };
 			var myStyle = {
 				"color": "#ff7800",
@@ -82,7 +82,7 @@
 			});
 			municipios.addTo(map);
 
-			EMScontour = L.geoJSON(contour01, {style: emsStyle}).addTo(map);
+			EMScontour01 = L.geoJSON(contour01, {style: emsStyle}).addTo(map);
 
 			map.addLayer(Esri_WorldImagery);
 
@@ -128,15 +128,14 @@
 					  // console.log("Lon: " + item["latitude"] + ", Lat:" + item["longitude"]);
 						latlon.push([item["latitude"], item["longitude"]])
 					});
-					console.log(latlon);
-
 					heatmap = L.heatLayer(latlon, heatStyle);
 					heatmap.addTo(map);
 
 					overlayers = {
 						"🔥 Fire and thermal anomalies": heatmap,
+						"Fire observations": fireobs,
 						"Natural protected areas": protected,
-						"Copernicus EMS delineation": EMScontour,
+						"Copernicus EMS delineation": EMScontour01,
 						"Municipalities": municipios,
 						"MODIS AQUA 18 August": aqua20230818,
 						"Sentinel-2 18 August": sentinel20230818,
