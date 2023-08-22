@@ -65,6 +65,13 @@
 				alt: "ok",
 				interactive: true
 			});
+
+			var latLngBounds3 = L.latLngBounds([[28.6140622, -17.2093964], [27.9610496, -15.8910370]]);
+			var sentinel20230818B12 = L.imageOverlay("data/Sentinel-2_2023-08-18-B12.jpg", latLngBounds3, {
+				opacity: 0.9,
+				alt: "ok",
+				interactive: true
+			});
 			
 
 			var emsStyle = {"color": "red", "weight": 2.5, "opacity": 1};
@@ -118,8 +125,11 @@
 			fireobs.addTo(map);
 
 			// Add locations
-			var marker = L.marker([28.393801, -16.482370]).addTo(map)
+			var marker1 = L.marker([28.393801, -16.482370]).addTo(map)
 				.bindPopup("<h4>Bosquete de los<br>Sanguinos</h4>").openPopup();
+			var marker2 = L.marker([28.30919032133915, -16.499157537043825]).addTo(map)
+				.bindPopup("<h4>Izaña Atmospheric<br>Observatory</h4>");
+					
 							
 			$.getJSON(firefile, function(json) {
 					latlon = [];
@@ -138,6 +148,7 @@
 						"Municipalities": municipios,
 						"MODIS AQUA 18 August": aqua20230818,
 						"Sentinel-2 18 August": sentinel20230818,
+						"Sentinel-2 (B12) 18 August": sentinel20230818B12,
 					};
 
 					L.control.layers(baseMaps, overlayers, {collapsed:false}).addTo(map);
