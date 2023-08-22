@@ -67,13 +67,9 @@
 			});
 			
 
-			var emsStyle = {"color": "#FF9400", "weight": 2, "opacity": 1};
-			var munStyle = {"color": "black", "weight": 2, "opacity": 1, fillOpacity: 0.1 };
-			var myStyle = {
-				"color": "#ff7800",
-				"weight": 5,
-				"opacity": 0.65
-			};
+			var emsStyle = {"color": "red", "weight": 2.5, "opacity": 1};
+			var munStyle = {"color": "black", "weight": 2, "opacity": 1, fillOpacity: 0.0, dashArray: '7, 15'};
+			var myStyle = {"color": "#ff7800", "weight": 5, "opacity": 0.65};
 
 
 			var municipios = L.geoJSON(null, {style: munStyle});
@@ -121,6 +117,9 @@
 			});
 			fireobs.addTo(map);
 
+			// Add locations
+			var marker = L.marker([28.393801, -16.482370]).addTo(map)
+				.bindPopup("<h4>Bosquete de los<br>Sanguinos</h4>").openPopup();
 							
 			$.getJSON(firefile, function(json) {
 					latlon = [];
